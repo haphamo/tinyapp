@@ -13,6 +13,11 @@ app.get("/", (req, res) => {
   res.send("<h1>Hello! Welcome to the HomePage</h1>");
 });
 
+app.get("/urls", (req, res) => {
+  let templateVars = {urls: urlDatabase};
+  res.render("urls_index", templateVars);
+});
+
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
