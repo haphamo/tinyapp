@@ -37,7 +37,7 @@ app.get("/urls/new", (req, res) => {//Adding a GET route to show the form. The o
 app.post("/urls", (req, res) => {//.post is the method, "/urls" is the action
   let redirected = generateRandomString()
   urlDatabase[redirected] = req.body.longURL 
-  console.log('result', '/u/'+ redirected);
+  console.log('shortURL has been created for ' + req.body.longURL +'\n' + redirected);
   res.redirect('/urls/'+ redirected)
 });
 
@@ -54,6 +54,13 @@ app.get("/urls/:shortURL", (req, res) => {
 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
+});
+
+app.post("/urls/:shortURL/delete", (req, res) => {//post route which deletes 
+  console.log(urlDatabase);
+  delete urlDatabase[req.params.shortURL]
+  console.log(urlDatabase);
+  res.redirect("/urls"); //redirect to urls
 });
 
 app.get("/hello", (req, res) => {
