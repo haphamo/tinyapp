@@ -21,6 +21,8 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+const usernameDatabase = {};
+
 app.get("/", (req, res) => {
   res.send("<h1>Hello! Welcome to the HomePage</h1>");
 });
@@ -74,7 +76,16 @@ app.post("/urls/:shortURL", (req, res) => {//updating the longURL, assign it to 
   // console.log(req.body);
   // console.log(req.params);
   res.redirect("/urls")
+});
 
+app.post("/login", (req, res) => {
+  console.log(req.body);
+  let id = generateRandomString();
+  usernameDatabase[id] = { "username": req.body.username }
+  console.log(usernameDatabase);
+  res.cookie("username", req.body.username);
+  
+  res.redirect("/urls");
 });
 
 app.get("/hello", (req, res) => {
@@ -98,5 +109,6 @@ app.listen(PORT, () => {
 
   let dayOfTheWeek = torontoTime.getDay();
   //console.log("Today's date: " + torontoTime.toLocaleString());
-  console.log(`${phrase} Ha, you are connected to the server at port ${PORT}.\nDon't forget your umbrella!`)
+  //console.log(`${phrase} Ha, you are connected to the server at port ${PORT}.\nDon't forget your umbrella!`)
+  console.log("You are connected to the server!")
 });
