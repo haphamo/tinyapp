@@ -11,10 +11,16 @@
         <% include ./partials/_header %>
     </header>
   <div class="card text-center">
+    
       <div class="card-header"></div>
       <div class="card-body">
         <h5 class="card-title">TinyURL for: <%= longURL %></h5>
         <p class="card-text">Short URL: <a href="<%= longURL %>"><%= shortURL %></a></p>
+        <form action="/action_page.php" method="get">
+          <p><a href="#" class="text-secondary">Edit</a></p>
+          New URL: <input type="text" name="fname"><button class="btn btn-info">Submit</button><br>
+          
+        </form>
       </div>
     <div class="card-footer text-muted"></div>
   </div>
