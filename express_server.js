@@ -52,7 +52,6 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
@@ -77,7 +76,6 @@ app.listen(PORT, () => {
   };
 
   let dayOfTheWeek = torontoTime.getDay();
-
   //console.log("Today's date: " + torontoTime.toLocaleString());
   console.log(`Today's date is Tuesday October 1, 2019.\n${phrase} Ha, you are connected to the server at port ${PORT}.`)
 });
