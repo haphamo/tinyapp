@@ -16,10 +16,9 @@
       <div class="card-body">
         <h5 class="card-title">TinyURL for: <%= longURL %></h5>
         <p class="card-text">Short URL: <a href="<%= longURL %>"><%= shortURL %></a></p>
-        <form action="/action_page.php" method="get">
-          <p><a href="#" class="text-secondary">Edit</a></p>
+        <form action="/urls/<%= shortURL %>" method="POST"><!--client side to updating URL(edit)-->
+          <p><h2><a class="text-secondary">Edit</a></h2></p>
           New URL: <input type="text" name="fname"><button class="btn btn-info">Submit</button><br>
-          
         </form>
       </div>
     <div class="card-footer text-muted"></div>

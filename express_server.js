@@ -57,10 +57,24 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {//post route which deletes 
-  console.log(urlDatabase);
+  //console.log('Before Deletion: ', urlDatabase);
   delete urlDatabase[req.params.shortURL]
-  console.log(urlDatabase);
+  //console.log('After Deletion: ', urlDatabase);
   res.redirect("/urls"); //redirect to urls
+});
+
+app.get("/url/:shortURL", (req, res) => {//post route to edit my url. go into database and change the longURL
+  urlDatabase[req.params.shortURL] = req.params.body;//update
+  console.log(urlDatabase)
+});
+
+app.post("/urls/:shortURL", (req, res) => {//updating the longURL, assign it to the database at the reqparams 
+  urlDatabase[req.params.shortURL] = req.body.fname
+  console.log(urlDatabase);
+  // console.log(req.body);
+  // console.log(req.params);
+  res.redirect("/urls")
+
 });
 
 app.get("/hello", (req, res) => {
@@ -84,5 +98,5 @@ app.listen(PORT, () => {
 
   let dayOfTheWeek = torontoTime.getDay();
   //console.log("Today's date: " + torontoTime.toLocaleString());
-  console.log(`Today's date is Tuesday October 1, 2019.\n${phrase} Ha, you are connected to the server at port ${PORT}.`)
+  console.log(`${phrase} Ha, you are connected to the server at port ${PORT}.\nDon't forget your umbrella!`)
 });
