@@ -18,6 +18,18 @@ function generateRandomString() {
     return shortURL;
 };
 
+//Create function to check is userEmail exists 
+checkEmail = function (email){
+  for (let userId in userDatabase) {
+    console.log(userId);
+    if (userDatabase[userId].email === email) {
+      return true;
+    };
+  };
+  return false;
+} 
+
+
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
@@ -32,12 +44,12 @@ app.get("/", (req, res) => {
 
 app.get("/urls", (req, res) => {
   //console.log("cookies", req.cookies);
-  let templateVars = {urls: urlDatabase, username: req.cookies.username};
+  let templateVars = {urls: urlDatabase, user_ID: req.body.id };
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {//Adding a GET route to show the form. The order of route matters!! Go from most speficic to least
-  let templateVars = {username: req.cookies.username,};
+  let templateVars = { user_ID: req.body.id };
   res.render("urls_new", templateVars);
 });
 
@@ -55,7 +67,7 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies.username };
+  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], user_ID: req.body.id };
   res.render("urls_show", templateVars);
 });
 
@@ -84,34 +96,40 @@ app.post("/urls/:shortURL", (req, res) => {//updating the longURL, assign it to 
 });
 
 app.get("/register", (req, res) => {//get route to register
-  let templateVars = { username: req.cookies.username };
+  let templateVars = { user_ID: req.body.id };
   res.render("urls_register", templateVars);
 });
 
 app.post("/register", (req, res) => {//post method for register, Store the email and password into database
   if (req.body.email === "" || req.body.password === "") {
-    res.status(404).send("Oh uh, something went wrong");
-  }
-  console.log(req.body.email);
+    res.status(400);
+    res.send('None shall pass');
+    
+  } else  if (checkEmail(req.body.email) === true) {
+    res.status(400);
+    res.send("email already exists!")
+  } else {
+  
   let userRandomId = generateRandomString();
-  userDatabase[userRandomId] = {//user_id cookie containing the user's newly generated ID
+    userDatabase[userRandomId] = {//user_id cookie containing the user's newly generated ID
     "id": userRandomId,
     "email": req.body.email,
     "password": req.body.password
-  };
+    };
   res.cookie("user_ID", userRandomId)
-//console.log("this if the userDatabase", userDatabase);
-res.redirect("/urls")
+  console.log("this is the userDatabase", userDatabase);
+  res.redirect("/urls");
+  }
  
 });
 
 app.get("/login", (req, res) => {//get route to log in
-  let templateVars = { username: req.cookies.username };
+  let templateVars = { user_ID: req.body.email };
   res.render("urls_login", templateVars);
 });
 
 app.post("/logout", (req, res) => {//clearing cookie after logout, redirect to all pages as a new user
-  res.clearCookie("username", req.cookies.username);
+  res.clearCookie("user_ID", req.body.email);
   //console.log("cookies", req.cookies)
   res.redirect("/urls");
 })
@@ -121,7 +139,6 @@ app.get("/hello", (req, res) => {
 });
 
 app.listen(PORT, () => {
-
   //console.log("Today's date: " + torontoTime.toLocaleString());
   //console.log(`${phrase} Ha, you are connected to the server at port ${PORT}.\nDon't forget your umbrella!`)
   console.log("You are connected to the server!")
