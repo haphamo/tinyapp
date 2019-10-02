@@ -18,17 +18,30 @@ function generateRandomString() {
     return shortURL;
 };
 
-//Create function to check is userEmail exists 
-checkEmail = function (email){
+checkEmail = function (email) {
   for (let userId in userDatabase) {
-    console.log(userId);
+    //console.log(userId);
     if (userDatabase[userId].email === email) {
       return true;
     };
   };
   return false;
-} 
-
+};
+checkPassword = function (password) {
+  for (let userId in userDatabase) {
+    if (userDatabase[userId].password === password) {
+      return true;
+    }
+  }
+  return false;
+};
+getId = function (email) {
+  for (let userId in userDatabase) {
+    if (userDatabase[userId].email === email) {
+      return userDatabase[userId].id
+    }
+  }
+}
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -96,20 +109,16 @@ app.post("/urls/:shortURL", (req, res) => {//updating the longURL, assign it to 
 });
 
 app.get("/register", (req, res) => {//get route to register
-  let templateVars = { user_ID: req.body.id };
+  let templateVars = { user: userDatabase[req.cookie[user_ID]] };
   res.render("urls_register", templateVars);
 });
 
 app.post("/register", (req, res) => {//post method for register, Store the email and password into database
   if (req.body.email === "" || req.body.password === "") {
-    res.status(400);
-    res.send('None shall pass');
-    
+    res.status(400).send("Please input an email and password!");
   } else  if (checkEmail(req.body.email) === true) {
-    res.status(400);
-    res.send("email already exists!")
+    res.status(400).send("That email already exists!")
   } else {
-  
   let userRandomId = generateRandomString();
     userDatabase[userRandomId] = {//user_id cookie containing the user's newly generated ID
     "id": userRandomId,
@@ -120,12 +129,26 @@ app.post("/register", (req, res) => {//post method for register, Store the email
   console.log("this is the userDatabase", userDatabase);
   res.redirect("/urls");
   }
- 
 });
 
 app.get("/login", (req, res) => {//get route to log in
-  let templateVars = { user_ID: req.body.email };
+  //let user = userDatabase[req.cookie["user_ID"]]
+  let templateVars = { user: userDatabase[req.cookie[user_ID]] };
   res.render("urls_login", templateVars);
+});
+
+app.post("/login", (req, res) => {//post route to log in
+  let templateVars = { user: userDatabase[req.cookie[user_ID]] };
+  if (!checkEmail(req.body.id)) {
+    res.status(403).send("email doesn't exist!")
+  } else if (checkPassword(password) === false) {
+    res.status(403).send("Password does not match!")
+  } else {
+    res.cookie("user_ID", getId(req.body.email))
+    res.redirect("/urls");
+    
+  }
+  
 });
 
 app.post("/logout", (req, res) => {//clearing cookie after logout, redirect to all pages as a new user
