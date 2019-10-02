@@ -6,7 +6,6 @@ app.set("view engine", "ejs");
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 const cookieParser = require("cookie-parser");
-
 app.use(cookieParser());
 //app.use(methodOverride) add middleware, it changes the request
 
@@ -81,15 +80,10 @@ app.post("/urls/:shortURL", (req, res) => {//updating the longURL, assign it to 
 });
 
 app.post("/login", (req, res) => {
-  console.log(req.body);
-  let id = generateRandomString();
-  usernameDatabase[id] = { "username": req.body.username }
-  console.log(usernameDatabase);
-  //console.log(usernameDatabase.id)
   res.cookie("username", req.body.username);
+  console.log(req.body.username)
   res.redirect("/urls");
 });
-
 
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
