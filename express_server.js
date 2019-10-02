@@ -89,6 +89,10 @@ app.get("/register", (req, res) => {//get route to register
 });
 
 app.post("/register", (req, res) => {//post method for register, Store the email and password into database
+  if (req.body.email === "" || req.body.password === "") {
+    res.status(404).send("Oh uh, something went wrong");
+  }
+  console.log(req.body.email);
   let userRandomId = generateRandomString();
   userDatabase[userRandomId] = {//user_id cookie containing the user's newly generated ID
     "id": userRandomId,
