@@ -23,12 +23,7 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-const users = {
-  "userRandomId" : {
-    id: "userRandomId",
-    email: "email",
-    password: "password"
-  }
+const userDatabase = {
 };
 
 app.get("/", (req, res) => {
@@ -93,7 +88,20 @@ app.get("/register", (req, res) => {//get route to register
   res.render("urls_register", templateVars);
 });
 
-app.get("/login", (req, res) => {//when logged in the cookie saves the input
+app.post("/register", (req, res) => {//post method for register, Store the email and password into database
+  let userRandomId = generateRandomString();
+  userDatabase[userRandomId] = {
+    "id": userRandomId,
+    "email": req.body.email,
+    "password": req.body.password
+  }
+console.log(userDatabase);
+console.log(req.body);
+res.redirect("/urls")
+ 
+});
+
+app.get("/login", (req, res) => {//get route to log in
   let templateVars = { username: req.cookies.username };
   res.render("urls_login", templateVars);
 });
