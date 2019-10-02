@@ -14,9 +14,11 @@
     
     
    <% if (username) { %>
-    <form>action="/Logout" method="POST"></form>
-      <div> Logged in as <%= username %> <button class="btn btn-outline-danger">Logout</button></div>
-    <%} else { %>
+    <form action="/logout" method="POST"><br>
+      Logged in as TinyApp User    <button class="btn btn-outline-dark">  Logout  </button><br>
+      <br>
+    </form>
+    <% } else { %>
     <form name="username" action="/login" method="POST"><br>
       <input type="text" name="username" placeholder="Username">  <button class="btn btn-outline-dark">  Sign In  </button><br>
       <br>
