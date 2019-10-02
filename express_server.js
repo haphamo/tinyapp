@@ -60,7 +60,7 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
-app.post("/urls/:shortURL/delete", (req, res) => {//post route which deletes 
+app.post("/urls/:shortURL/delete", (req, res) => {//post route which deletes saved URLs
   //console.log('Before Deletion: ', urlDatabase);
   delete urlDatabase[req.params.shortURL]
   //console.log('After Deletion: ', urlDatabase);
@@ -80,11 +80,18 @@ app.post("/urls/:shortURL", (req, res) => {//updating the longURL, assign it to 
   res.redirect("/urls")
 });
 
-app.post("/login", (req, res) => {
+app.post("/login", (req, res) => {//when logged in the cookie saves the input
   res.cookie("username", req.body.username);
-  console.log(req.body.username)
+  console.log(req.body.username);
   res.redirect("/urls");
 });
+
+app.post("/logout", (req, res) => {//clearing cookie after logout, redirect to all pages as a new user
+
+  res.clearCookie("username", req.cookies.username);
+  console.log("cookies", req.cookies)
+  res.redirect("/urls");
+})
 
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
