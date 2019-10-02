@@ -23,12 +23,20 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+const users = {
+  "userRandomId" : {
+    id: "userRandomId",
+    email: "email",
+    password: "password"
+  }
+};
+
 app.get("/", (req, res) => {
   res.send("<h1>Hello! Welcome to the HomePage</h1>");
 });
 
 app.get("/urls", (req, res) => {
-  console.log("cookies", req.cookies);
+  //console.log("cookies", req.cookies);
   let templateVars = {urls: urlDatabase, username: req.cookies.username};
   res.render("urls_index", templateVars);
 });
@@ -80,16 +88,19 @@ app.post("/urls/:shortURL", (req, res) => {//updating the longURL, assign it to 
   res.redirect("/urls")
 });
 
-app.post("/login", (req, res) => {//when logged in the cookie saves the input
-  res.cookie("username", req.body.username);
-  console.log(req.body.username);
-  res.redirect("/urls");
+app.get("/register", (req, res) => {//get route to register
+  let templateVars = { username: req.cookies.username };
+  res.render("urls_register", templateVars);
+});
+
+app.get("/login", (req, res) => {//when logged in the cookie saves the input
+  let templateVars = { username: req.cookies.username };
+  res.render("urls_login", templateVars);
 });
 
 app.post("/logout", (req, res) => {//clearing cookie after logout, redirect to all pages as a new user
-
   res.clearCookie("username", req.cookies.username);
-  console.log("cookies", req.cookies)
+  //console.log("cookies", req.cookies)
   res.redirect("/urls");
 })
 
@@ -98,21 +109,7 @@ app.get("/hello", (req, res) => {
 });
 
 app.listen(PORT, () => {
-  var torontoTime = new Date().toLocaleString("en-US", {timeZone: "America/New_York"});
-  torontoTime = new Date(torontoTime);
-  let hour = torontoTime.getHours();
-  let phrase = '';
-  if (hour < 12) {
-    phrase = 'Good morning';
-  } else if (hour >= 12) {
-    phrase = 'Good afternoon';
-  } else if (hour >= 17) {
-    phrase = 'Good evening';
-  } else if (hour > 21) {
-    phrase = "It's time to head home and rest";
-  };
 
-  let dayOfTheWeek = torontoTime.getDay();
   //console.log("Today's date: " + torontoTime.toLocaleString());
   //console.log(`${phrase} Ha, you are connected to the server at port ${PORT}.\nDon't forget your umbrella!`)
   console.log("You are connected to the server!")
