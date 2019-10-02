@@ -109,7 +109,8 @@ app.post("/urls/:shortURL", (req, res) => {//updating the longURL, assign it to 
 });
 
 app.get("/register", (req, res) => {//get route to register
-  let templateVars = { user: userDatabase[req.cookie[user_ID]] };
+  user = userDatabase[req.cookies["user_ID"]]
+  let templateVars = { user: userDatabase[req.cookies["user_ID"]] };
   res.render("urls_register", templateVars);
 });
 
@@ -132,13 +133,14 @@ app.post("/register", (req, res) => {//post method for register, Store the email
 });
 
 app.get("/login", (req, res) => {//get route to log in
-  //let user = userDatabase[req.cookie["user_ID"]]
-  let templateVars = { user: userDatabase[req.cookie[user_ID]] };
+  user = userDatabase[req.cookies["user_ID"]]
+  let templateVars = { user: userDatabase[req.cookies["user_ID"]] };
   res.render("urls_login", templateVars);
 });
 
 app.post("/login", (req, res) => {//post route to log in
-  let templateVars = { user: userDatabase[req.cookie[user_ID]] };
+  user = userDatabase[req.cookies["user_ID"]]
+  let templateVars = { user: userDatabase[req.cookies["user_ID"]] };
   if (!checkEmail(req.body.id)) {
     res.status(403).send("email doesn't exist!")
   } else if (checkPassword(password) === false) {
