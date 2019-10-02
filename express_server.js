@@ -5,6 +5,9 @@ const PORT = 8080; // default port 8080
 app.set("view engine", "ejs");
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
+const cookieParser = require("cookie-parser");
+
+app.use(cookieParser());
 //app.use(methodOverride) add middleware, it changes the request
 
 function generateRandomString() {
@@ -21,14 +24,13 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-const usernameDatabase = {};
-
 app.get("/", (req, res) => {
   res.send("<h1>Hello! Welcome to the HomePage</h1>");
 });
 
 app.get("/urls", (req, res) => {
-  let templateVars = {urls: urlDatabase};
+  console.log("cookies", req.cookies);
+  let templateVars = {urls: urlDatabase, username: req.cookies.username};
   res.render("urls_index", templateVars);
 });
 
@@ -72,7 +74,7 @@ app.get("/url/:shortURL", (req, res) => {//post route to edit my url. go into da
 
 app.post("/urls/:shortURL", (req, res) => {//updating the longURL, assign it to the database at the reqparams 
   urlDatabase[req.params.shortURL] = req.body.fname
-  console.log(urlDatabase);
+  //console.log(urlDatabase);
   // console.log(req.body);
   // console.log(req.params);
   res.redirect("/urls")
@@ -83,10 +85,11 @@ app.post("/login", (req, res) => {
   let id = generateRandomString();
   usernameDatabase[id] = { "username": req.body.username }
   console.log(usernameDatabase);
+  //console.log(usernameDatabase.id)
   res.cookie("username", req.body.username);
-  
   res.redirect("/urls");
 });
+
 
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
