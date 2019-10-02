@@ -27,6 +27,7 @@ checkEmail = function (email) {
   };
   return false;
 };
+
 checkPassword = function (password) {
   for (let userId in userDatabase) {
     if (userDatabase[userId].password === password) {
@@ -35,11 +36,12 @@ checkPassword = function (password) {
   }
   return false;
 };
+
 getId = function (email) {
   for (let userId in userDatabase) {
     if (userDatabase[userId].email === email) {
       return userDatabase[userId].id
-    }
+    };
   }
 }
 
@@ -57,7 +59,8 @@ app.get("/", (req, res) => {
 
 app.get("/urls", (req, res) => {
   //console.log("cookies", req.cookies);
-  let templateVars = {urls: urlDatabase, user_ID: req.body.id };
+  user = userDatabase[req.cookies["user_ID"]]
+  let templateVars = {urls: urlDatabase, user };
   res.render("urls_index", templateVars);
 });
 
@@ -117,7 +120,7 @@ app.get("/register", (req, res) => {//get route to register
 app.post("/register", (req, res) => {//post method for register, Store the email and password into database
   if (req.body.email === "" || req.body.password === "") {
     res.status(400).send("Please input an email and password!");
-  } else  if (checkEmail(req.body.email) === true) {
+  } else  if (checkEmail(req.body.email)) {
     res.status(400).send("That email already exists!")
   } else {
   let userRandomId = generateRandomString();
@@ -134,27 +137,25 @@ app.post("/register", (req, res) => {//post method for register, Store the email
 
 app.get("/login", (req, res) => {//get route to log in
   user = userDatabase[req.cookies["user_ID"]]
-  let templateVars = { user: userDatabase[req.cookies["user_ID"]] };
+  let templateVars = { user };
   res.render("urls_login", templateVars);
 });
 
 app.post("/login", (req, res) => {//post route to log in
   user = userDatabase[req.cookies["user_ID"]]
   let templateVars = { user: userDatabase[req.cookies["user_ID"]] };
-  if (!checkEmail(req.body.id)) {
+  if (!checkEmail(req.body.email)) {
     res.status(403).send("email doesn't exist!")
-  } else if (checkPassword(password) === false) {
+  } else if (checkPassword(req.body.password) === false) {
     res.status(403).send("Password does not match!")
   } else {
     res.cookie("user_ID", getId(req.body.email))
     res.redirect("/urls");
-    
   }
-  
 });
 
 app.post("/logout", (req, res) => {//clearing cookie after logout, redirect to all pages as a new user
-  res.clearCookie("user_ID", req.body.email);
+  res.clearCookie("user_ID");
   //console.log("cookies", req.cookies)
   res.redirect("/urls");
 })
