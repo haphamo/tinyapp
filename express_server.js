@@ -90,13 +90,13 @@ app.get("/register", (req, res) => {//get route to register
 
 app.post("/register", (req, res) => {//post method for register, Store the email and password into database
   let userRandomId = generateRandomString();
-  userDatabase[userRandomId] = {
+  userDatabase[userRandomId] = {//user_id cookie containing the user's newly generated ID
     "id": userRandomId,
     "email": req.body.email,
     "password": req.body.password
-  }
-console.log(userDatabase);
-console.log(req.body);
+  };
+  res.cookie("user_ID", userRandomId)
+//console.log("this if the userDatabase", userDatabase);
 res.redirect("/urls")
  
 });
