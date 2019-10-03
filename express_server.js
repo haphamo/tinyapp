@@ -42,15 +42,16 @@ getId = function (email) {
     if (userDatabase[userId].email === email) {
       return userDatabase[userId].id
     };
-  }
-}
+  };
+};
 
-//Create a function named urlsForUser(id) which returns the URLs where the userID is equal to the id of the currently logged in user
-//only return key value pairs in object , it has a user key that matches and long url and short url
-let urlsForUser = function(database, userID) {
+let urlsForUser = function(database, userID) {//function to filter urls for user specific
   let userSpecific = {};
   for (let shortURL in database) {
+    console.log('eache url',shortURL);
     let value = database[shortURL];
+    console.log('valueeeee', value)
+    console.log('value.userid is', value.userID)
     if (value.userID === userID) {
       userSpecific[shortURL] = value;
     };
@@ -59,10 +60,12 @@ let urlsForUser = function(database, userID) {
 }
 
 const urlDatabase = {
-
+  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" , shortURL: "b6UTxQ"},
+  i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW", shortURL: "i3BoGr" }
 };
 
 const userDatabase = {
+  aJ48lW: {id: 'aJ48lW', email: 'ha.phamo@hotmail.com', password: '1234'}
 };
 
 app.get("/", (req, res) => {
@@ -77,18 +80,17 @@ app.get("/urls", (req, res) => {
     return
   }
   let userSpecific = {};
-  
   for (let shortURL in urlDatabase) {
     let value = urlDatabase[shortURL];
     if (value.userID === user.id) {
       userSpecific[shortURL] = value;
     }
-  }
-  let templateVars = {urls: userSpecific, user };
+  } 
+  console.log("userSpecific", userSpecific);
+  let templateVars = {urls: userSpecific,  user };
   console.log("req.cookies", req.cookies)
   console.log("The urlDatabase:" , urlDatabase);
   res.render("urls_index", templateVars);
-
 });
 
 app.get("/urls/new", (req, res) => {//Adding a GET route to show the form. The order of route matters!! Go from most speficic to least
@@ -97,7 +99,6 @@ app.get("/urls/new", (req, res) => {//Adding a GET route to show the form. The o
   } else {
     user = userDatabase[req.cookies["user_ID"]]
     let templateVars = { user_ID: req.body.id , user };
-    
     res.render("urls_new", templateVars);
   }
 });
@@ -120,15 +121,16 @@ app.get("/u/:shortURL", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   user = userDatabase[req.cookies["user_ID"]];
   let userSpecific = {};
-  
   for (let shortURL in urlDatabase) {
     let value = urlDatabase[shortURL];
     if (value.userID === user.id) {
       userSpecific[shortURL] = value;
     }
   } 
+  //let specificURLs = urlsForUser(urlDatabase, user)
   
-  let templateVars = { shortURL: urlDatabase.shortURL, longURL: userSpecific.longURL }
+ 
+  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL }
 
   console.log("req.params.shortURL:", req.params.shortURL);
   console.log("urlDatabase[req.params.shortURL].longURL:", urlDatabase[req.params.shortURL].longURL)
