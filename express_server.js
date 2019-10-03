@@ -46,17 +46,15 @@ getId = function (email) {
 }
 
 //Create a function named urlsForUser(id) which returns the URLs where the userID is equal to the id of the currently logged in user
-let urlsForUser = function(id) {
+let urlsForUser = function() {
   //go into database and search for the logged in user's key against the urlDatabase. for shortUrls in database if value
+  
 }
 
 const urlDatabase = {
   // "b2xVn2": "http://www.lighthouselabs.ca",
   // "9sm5xK": "http://www.google.com"
-  
-    // b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
-    // i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" }
-  
+
 };
 
 const userDatabase = {
@@ -68,26 +66,30 @@ app.get("/", (req, res) => {
 
 app.get("/urls", (req, res) => {
   //console.log("cookies", req.cookies);
-  user = userDatabase[req.cookies["user_ID"]]
-  let templateVars = {urls: urlDatabase, user };
-  res.render("urls_index", templateVars);
+  if (!req.cookies["user_ID"]) {//only logged in users can create links otherwise redirect
+    res.redirect("/login");
+  } else {
+    user = userDatabase[req.cookies["user_ID"]]
+    let templateVars = {urls: urlDatabase, user_ID: req.body.id };
+    console.log("The urlDatabase:" , urlDatabase);
+    res.render("urls_index", templateVars);
+  }
 });
 
 app.get("/urls/new", (req, res) => {//Adding a GET route to show the form. The order of route matters!! Go from most speficic to least
-
-  if (!req.cookies["user_ID"]) {
+  if (!req.cookies["user_ID"]) {//only logged in users can create links otherwise redirect
     res.redirect("/login");
   } else {
-    let templateVars = { user_ID: req.body.id };
+    let templateVars = { user_ID: req.body.id  };
     res.render("urls_new", templateVars);
   }
-  
 });
 
 app.post("/urls", (req, res) => {//.post is the method, "/urls" is the action
   let redirected = generateRandomString()
-  urlDatabase[redirected] = req.body.longURL 
-  console.log('shortURL has been created for ' + req.body.longURL +'\n' + redirected);
+  urlDatabase[redirected] = { "longURL" : req.body.longURL , userID: req.cookies["user_ID"]}
+  console.log('shortURL has been created for ' + req.body.longURL +'\n' + redirected + " for userID: " + req.cookies["user_ID"]);
+  console.log("URLDATABASE:", urlDatabase);
   res.redirect('/urls/'+ redirected)
 });
 
@@ -98,7 +100,10 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], user_ID: req.body.id };
+  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, user_ID: req.body.id };
+  console.log("req.params.shortURL:", req.params.shortURL);
+  console.log("urlDatabase[req.params.shortURL].longURL:", urlDatabase[req.params.shortURL].longURL)
+  console.log("userDatabase[req.cookies['user_ID']]:", userDatabase[req.cookies["user_ID"]]);
   res.render("urls_show", templateVars);
 });
 
@@ -120,8 +125,8 @@ app.get("/url/:shortURL", (req, res) => {//post route to edit my url. go into da
 
 app.post("/urls/:shortURL", (req, res) => {//updating the longURL, assign it to the database at the reqparams 
   urlDatabase[req.params.shortURL] = req.body.fname
-  //console.log(urlDatabase);
-  // console.log(req.body);
+  console.log("urlDatabase: ", urlDatabase);
+  //console.log(req.body);
   // console.log(req.params);
   res.redirect("/urls")
 });
