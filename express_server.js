@@ -121,11 +121,11 @@ app.post("/urls/:shortURL/delete", (req, res) => {//post route which deletes sav
 
 app.get("/url/:shortURL", (req, res) => {//post route to edit my url. go into database and change the longURL
   urlDatabase[req.params.shortURL] = req.params.body;//update
-  console.log(urlDatabase)
+  console.log("Line 124", urlDatabase)
 });
 
 app.post("/urls/:shortURL", (req, res) => {//updating the longURL, assign it to the database at the reqparams 
-  urlDatabase[req.params.shortURL] = req.body.fname
+  urlDatabase[req.params.shortURL].longURL = req.body.fname
   console.log("urlDatabase: ", urlDatabase);
   //console.log(req.body);
   // console.log(req.params);
