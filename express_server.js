@@ -46,19 +46,20 @@ getId = function (email) {
 }
 
 //Create a function named urlsForUser(id) which returns the URLs where the userID is equal to the id of the currently logged in user
-let urlsForUser = function() {
+//only return key value pairs in object , it has a user key that matches and long url and short url
+let urlsForUser = function(database, userID) {
   let userSpecific = {};
-  for (let shortURL in urlDatabase) {
-    let value = urlDatabase[shortURL];
-    if (value.userID === user.id) {
+  for (let shortURL in database) {
+    let value = database[shortURL];
+    if (value.userID === userID) {
       userSpecific[shortURL] = value;
-    }
-  }
+    };
+  };
+  return userSpecific;
 }
 
 const urlDatabase = {
-  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
-  i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" }
+
 };
 
 const userDatabase = {
@@ -76,7 +77,7 @@ app.get("/urls", (req, res) => {
     return
   }
   let userSpecific = {};
-  //call the function which returns
+  
   for (let shortURL in urlDatabase) {
     let value = urlDatabase[shortURL];
     if (value.userID === user.id) {
@@ -103,19 +104,32 @@ app.get("/urls/new", (req, res) => {//Adding a GET route to show the form. The o
 
 app.post("/urls", (req, res) => {
   let redirected = generateRandomString()
-  urlDatabase[redirected] = { "longURL" : req.body.longURL , userID: req.cookies["user_ID"]}
+  urlDatabase[redirected] = { "longURL" : req.body.longURL , userID: req.cookies["user_ID"], "shortURL": redirected}
   console.log('shortURL has been created for ' + req.body.longURL +'\n' + redirected + " for userID: " + req.cookies["user_ID"]);
+  console.log("urlDatabase:", urlDatabase);
   res.redirect('/urls/'+ redirected)
 });
 
-app.get("/u/:shortURL", (req, res) => {//Still need to fix this!!
-  const shortURL = req.params.shortURL
-  longURL = urlDatabase[shortURL];
+app.get("/u/:shortURL", (req, res) => {
+
+  const shortURL = urlDatabase[shortURL].shortURL;
+  const longURL = urlDatabase[shortURL].longURL;
   res.redirect(longURL);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, user_ID: req.body.id };
+  user = userDatabase[req.cookies["user_ID"]];
+  let userSpecific = {};
+  
+  for (let shortURL in urlDatabase) {
+    let value = urlDatabase[shortURL];
+    if (value.userID === user.id) {
+      userSpecific[shortURL] = value;
+    }
+  } 
+  
+  let templateVars = { shortURL: urlDatabase.shortURL, longURL: userSpecific.longURL }
+
   console.log("req.params.shortURL:", req.params.shortURL);
   console.log("urlDatabase[req.params.shortURL].longURL:", urlDatabase[req.params.shortURL].longURL)
   console.log("userDatabase[req.cookies['user_ID']]:", userDatabase[req.cookies["user_ID"]]);
