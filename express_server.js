@@ -85,11 +85,12 @@ app.get("/urls/new", (req, res) => {//Adding a GET route to show the form. The o
   }
 });
 
-app.post("/urls", (req, res) => {//.post is the method, "/urls" is the action
+app.post("/urls", (req, res) => {
   let redirected = generateRandomString()
   urlDatabase[redirected] = { "longURL" : req.body.longURL , userID: req.cookies["user_ID"]}
   console.log('shortURL has been created for ' + req.body.longURL +'\n' + redirected + " for userID: " + req.cookies["user_ID"]);
   console.log("URLDATABASE:", urlDatabase);
+  console.log(Object.keys(urlDatabase))
   res.redirect('/urls/'+ redirected)
 });
 
