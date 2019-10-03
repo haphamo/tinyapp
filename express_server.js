@@ -45,9 +45,18 @@ getId = function (email) {
   }
 }
 
+//Create a function named urlsForUser(id) which returns the URLs where the userID is equal to the id of the currently logged in user
+let urlsForUser = function(id) {
+  //go into database and search for the logged in user's key against the urlDatabase. for shortUrls in database if value
+}
+
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  // "b2xVn2": "http://www.lighthouselabs.ca",
+  // "9sm5xK": "http://www.google.com"
+  
+    // b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
+    // i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" }
+  
 };
 
 const userDatabase = {
@@ -65,8 +74,14 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {//Adding a GET route to show the form. The order of route matters!! Go from most speficic to least
-  let templateVars = { user_ID: req.body.id };
-  res.render("urls_new", templateVars);
+
+  if (!req.cookies["user_ID"]) {
+    res.redirect("/login");
+  } else {
+    let templateVars = { user_ID: req.body.id };
+    res.render("urls_new", templateVars);
+  }
+  
 });
 
 app.post("/urls", (req, res) => {//.post is the method, "/urls" is the action
