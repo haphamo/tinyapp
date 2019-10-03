@@ -47,14 +47,18 @@ getId = function (email) {
 
 //Create a function named urlsForUser(id) which returns the URLs where the userID is equal to the id of the currently logged in user
 let urlsForUser = function() {
-  //go into database and search for the logged in user's key against the urlDatabase. for shortUrls in database if value
-  
+  let userSpecific = {};
+  for (let shortURL in urlDatabase) {
+    let value = urlDatabase[shortURL];
+    if (value.userID === user.id) {
+      userSpecific[shortURL] = value;
+    }
+  }
 }
 
 const urlDatabase = {
-  // "b2xVn2": "http://www.lighthouselabs.ca",
-  // "9sm5xK": "http://www.google.com"
-
+  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
+  i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" }
 };
 
 const userDatabase = {
@@ -66,21 +70,33 @@ app.get("/", (req, res) => {
 
 app.get("/urls", (req, res) => {
   //console.log("cookies", req.cookies);
-  if (!req.cookies["user_ID"]) {//only logged in users can create links otherwise redirect
+  user = userDatabase[req.cookies["user_ID"]]
+  if (!user) {//only logged in users can create links otherwise redirect
     res.redirect("/login");
-  } else {
-    user = userDatabase[req.cookies["user_ID"]]
-    let templateVars = {urls: urlDatabase, user_ID: req.body.id };
-    console.log("The urlDatabase:" , urlDatabase);
-    res.render("urls_index", templateVars);
+    return
   }
+  let userSpecific = {};
+  //call the function which returns
+  for (let shortURL in urlDatabase) {
+    let value = urlDatabase[shortURL];
+    if (value.userID === user.id) {
+      userSpecific[shortURL] = value;
+    }
+  }
+  let templateVars = {urls: userSpecific, user };
+  console.log("req.cookies", req.cookies)
+  console.log("The urlDatabase:" , urlDatabase);
+  res.render("urls_index", templateVars);
+
 });
 
 app.get("/urls/new", (req, res) => {//Adding a GET route to show the form. The order of route matters!! Go from most speficic to least
   if (!req.cookies["user_ID"]) {//only logged in users can create links otherwise redirect
     res.redirect("/login");
   } else {
-    let templateVars = { user_ID: req.body.id  };
+    user = userDatabase[req.cookies["user_ID"]]
+    let templateVars = { user_ID: req.body.id , user };
+    
     res.render("urls_new", templateVars);
   }
 });
@@ -89,12 +105,10 @@ app.post("/urls", (req, res) => {
   let redirected = generateRandomString()
   urlDatabase[redirected] = { "longURL" : req.body.longURL , userID: req.cookies["user_ID"]}
   console.log('shortURL has been created for ' + req.body.longURL +'\n' + redirected + " for userID: " + req.cookies["user_ID"]);
-  console.log("URLDATABASE:", urlDatabase);
-  console.log(Object.keys(urlDatabase))
   res.redirect('/urls/'+ redirected)
 });
 
-app.get("/u/:shortURL", (req, res) => {
+app.get("/u/:shortURL", (req, res) => {//Still need to fix this!!
   const shortURL = req.params.shortURL
   longURL = urlDatabase[shortURL];
   res.redirect(longURL);
@@ -121,12 +135,10 @@ app.post("/urls/:shortURL/delete", (req, res) => {//post route which deletes sav
 
 app.get("/url/:shortURL", (req, res) => {//post route to edit my url. go into database and change the longURL
   urlDatabase[req.params.shortURL] = req.params.body;//update
-  console.log("Line 124", urlDatabase)
 });
 
 app.post("/urls/:shortURL", (req, res) => {//updating the longURL, assign it to the database at the reqparams 
   urlDatabase[req.params.shortURL].longURL = req.body.fname
-  console.log("urlDatabase: ", urlDatabase);
   //console.log(req.body);
   // console.log(req.params);
   res.redirect("/urls")
