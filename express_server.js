@@ -8,7 +8,6 @@ const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 const cookieParser = require("cookie-parser");
 app.use(cookieParser());
-//app.use(methodOverride) add middleware, it changes the request
 
 function generateRandomString() {
   let shortURL = "";
@@ -21,7 +20,6 @@ function generateRandomString() {
 
 checkEmail = function (email) {
   for (let userId in userDatabase) {
-    //console.log(userId);
     if (userDatabase[userId].email === email) {
       return userId;
     };
@@ -78,32 +76,30 @@ app.get("/urls", (req, res) => {//go back to fix this !!!!
   user = userDatabase[req.cookies["user_ID"]]
   if (!user) {//only logged in users can create links otherwise redirect
     res.redirect("/login");
-    return
-  }
+    return;
+  };
   let userSpecific = {};
   for (let shortURL in urlDatabase) {
     let value = urlDatabase[shortURL];
     if (value.userID === user.id) {
       userSpecific[shortURL] = value;
-    }
-  } 
+    };
+  };
 
-  //console.log("userSpecific", userSpecific);
   let templateVars = {urls: userSpecific,  user };
   console.log("req.cookies", req.cookies)
   console.log("The urlDatabase:" , urlDatabase);
   res.render("urls_index", templateVars);
- 
 });
 
-app.get("/urls/new", (req, res) => {//Adding a GET route to show the form. The order of route matters!! Go from most speficic to least
+app.get("/urls/new", (req, res) => {//get route ro create new links
   if (!req.cookies["user_ID"]) {//only logged in users can create links otherwise redirect
     res.redirect("/login");
   } else {
-    user = userDatabase[req.cookies["user_ID"]]
+    user = userDatabase[req.cookies["user_ID"]];
     let templateVars = { user_ID: req.body.id , user };
     res.render("urls_new", templateVars);
-  }
+  };
 });
 
 app.post("/urls", (req, res) => {
@@ -111,12 +107,12 @@ app.post("/urls", (req, res) => {
   urlDatabase[redirected] = { "longURL" : req.body.longURL , userID: req.cookies["user_ID"], "shortURL": redirected}
   console.log('shortURL has been created for ' + req.body.longURL +'\n' + redirected + " for userID: " + req.cookies["user_ID"]);
   console.log("urlDatabase:", urlDatabase);
-  res.redirect('/urls/'+ redirected)
+  res.redirect('/urls/'+ redirected);
 });
 
 app.get("/u/:shortURL", (req, res) => {
-  let shortURL = req.params.shortURL
-  let longURL = urlDatabase[shortURL].longURL
+  let shortURL = req.params.shortURL;
+  let longURL = urlDatabase[shortURL].longURL;
   res.redirect(longURL);
 });
 
@@ -129,12 +125,7 @@ app.get("/urls/:shortURL", (req, res) => {
       userSpecific[shortURL] = value;
     };
   };
- 
   let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL }
-
-  // console.log("req.params.shortURL:", req.params.shortURL);
-  // console.log("urlDatabase[req.params.shortURL].longURL:", urlDatabase[req.params.shortURL].longURL)
-  // console.log("userDatabase[req.cookies['user_ID']]:", userDatabase[req.cookies["user_ID"]]);
   res.render("urls_show", templateVars);
 });
 
@@ -147,11 +138,11 @@ app.post("/urls/:shortURL/delete", (req, res) => {//post route which deletes sav
   user = userDatabase[req.cookies["user_ID"]];
   if (!user) {
     res.status(401).send("Get out!")
-    return
-  } let specificUrls = urlsForUser(urlDatabase, user.id)
+    return;
+  } let specificUrls = urlsForUser(urlDatabase, user.id);
     if (req.cookies.userID === [req.params.shortURL].userID) {
-    delete urlDatabase[req.params.shortURL]
-    res.redirect("/urls"); //redirect to urls
+    delete urlDatabase[req.params.shortURL];
+    res.redirect("/urls");
   };
   //console.log('After Deletion: ', urlDatabase);
 });
@@ -159,7 +150,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {//post route which deletes sav
 app.get("/url/:shortURL", (req, res) => {//post route to edit my url. go into database and change the longURL
   user = userDatabase[req.cookies["user_ID"]];
   if (!user) {
-    res.status(401).send("Get out!")
+    res.status(401).send("Get out!");
     return;
   }
   urlDatabase[req.params.shortURL] = req.params.body;//update
@@ -167,9 +158,7 @@ app.get("/url/:shortURL", (req, res) => {//post route to edit my url. go into da
 
 app.post("/urls/:shortURL", (req, res) => {//updating the longURL, assign it to the database at the reqparams 
   urlDatabase[req.params.shortURL].longURL = req.body.fname
-  //console.log(req.body);
-  // console.log(req.params);
-  res.redirect("/urls")
+  res.redirect("/urls");
 });
 
 app.get("/register", (req, res) => {//get route to register
@@ -191,7 +180,6 @@ app.post("/register", (req, res) => {//post method for register, Store the email
     "password": bcrypt.hashSync(req.body.password, 10)
     };
   res.cookie("user_ID", userRandomId)
-  console.log("this is the userDatabase", userDatabase);
   res.redirect("/urls");
   }
 });
@@ -200,24 +188,19 @@ app.get("/login", (req, res) => {//get route to log in
   user = userDatabase[req.cookies["user_ID"]]
   let templateVars = { user };
   res.render("urls_login", templateVars);
-  console.log("req.body.password", req.body.password)
-  console.log("userDatabase", userDatabase)
-  //console.log("Here is what i need!", user.password)
 });
 
 app.post("/login", (req, res) => {//post route to log in
-  // user = userDatabase[req.cookies["user_ID"]]
-  // let templateVars = { user: userDatabase[req.cookies["user_ID"]] };
   let existingUser = checkEmail(req.body.email);
   console.log("user:", user);
   if (!existingUser) {
-    res.status(403).send("email doesn't exist!")
+    res.status(403).send("email doesn't exist!");
   } else if (!bcrypt.compareSync(req.body.password, checkEmail(req.body.email))) {
     res.status(403).send("Password does not match!")
   } else {
-    res.cookie("user_ID", getId(req.body.email))
+    res.cookie("user_ID", getId(req.body.email));
     res.redirect("/urls");
-  }
+  };
 });
 
 app.post("/logout", (req, res) => {//clearing cookie after logout, redirect to all pages as a new user
@@ -231,7 +214,5 @@ app.get("/hello", (req, res) => {
 });
 
 app.listen(PORT, () => {
-  //console.log("Today's date: " + torontoTime.toLocaleString());
-  //console.log(`${phrase} Ha, you are connected to the server at port ${PORT}.\nDon't forget your umbrella!`)
   console.log("You are connected to the server!")
 });
