@@ -1,8 +1,6 @@
 const { assert } = require('chai');
 
-const { checkEmail,
-        urlsForUser
-      } = require('../helper.js');
+const { checkEmail } = require('../helper.js');
 
 const testUserDatabase = {
   "userRandomID": {
@@ -18,8 +16,9 @@ const testUserDatabase = {
 };
 
 const testUrlDatabase = {
-    b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" , shortURL: "b6UTxQ"},
-    i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW", shortURL: "i3BoGr" }
+    b6UTxQ: { longURL: "https://www.tsn.ca", userID: "user2RandomID" , shortURL: "b6UTxQ"},
+    i3BoGr: { longURL: "https://www.google.ca", userID: "userRandomID", shortURL: "i3BoGr" },
+    t5530q: { longURL: "https://www.google.ca", userID: "userRandomID", shortURL: "t5530q" }
 };
 
 
@@ -36,8 +35,3 @@ describe('checkEmail', function() {
   });
 });
 
-describe('urlsForUser', function() {
-  it('should return the URLs that belong to that specific user', function() {
-
-  })
-})

@@ -16,7 +16,7 @@ let checkEmail = function (email, userDatabase) {
   return undefined;
 };
 
-let urlsForUser = function(database, userID) {//function to filter urls for user specific
+let urlsForUser = function(database, userID) {//function to filter urls for user specific in an object of object
   let userSpecific = {};
   for (let shortURL in database) {
     let value = database[shortURL];
@@ -30,6 +30,5 @@ let urlsForUser = function(database, userID) {//function to filter urls for user
 module.exports = {
   generateRandomString,
   checkEmail,
-  //getId,
   urlsForUser
 }
