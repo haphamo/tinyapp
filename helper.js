@@ -13,7 +13,7 @@ let checkEmail = function (email, userDatabase) {
       return userId;
     };
   };
-  return false;
+  return undefined;
 };
 
 let getId = function (email, userDatabase) {
