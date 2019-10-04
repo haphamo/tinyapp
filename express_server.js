@@ -112,14 +112,16 @@ app.post("/urls", (req, res) => {
 });
 
 app.get("/u/:shortURL", (req, res) => {
-  console.log("urlDatabase:", urlDatabase)
-  console.log("req.cookies", req.cookies)
-  console.log("GIVE ME SHORT URL", req.params.shortURL)
-  user = userDatabase[req.cookies["user_ID"]]
-  console.log('USERRRRRRR', user.id);
-  let abc = urlsForUser(urlDatabase, user.id);
-  console.log("abc", abc[req.params.shortURL].longURL)  
-  res.redirect(abc[req.params.shortURL].longURL);
+  // console.log("urlDatabase:", urlDatabase)
+  // console.log("req.cookies", req.cookies)
+  // console.log("GIVE ME SHORT URL", req.params.shortURL)
+  // user = userDatabase[req.cookies["user_ID"]]
+  //console.log('USERRRRRRR', user.id);
+  //let abc = urlsForUser(urlDatabase, user.id);
+  //console.log("abc", abc[req.params.shortURL].longURL)  
+  let shortURL = req.params.shortURL
+  let longURL = urlDatabase[shortURL].longURL
+  res.redirect(longURL);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
@@ -160,6 +162,11 @@ app.post("/urls/:shortURL/delete", (req, res) => {//post route which deletes sav
 });
 
 app.get("/url/:shortURL", (req, res) => {//post route to edit my url. go into database and change the longURL
+  user = userDatabase[req.cookies["user_ID"]];
+  if (!user) {
+    res.status(401).send("Get out!")
+    return;
+  }
   urlDatabase[req.params.shortURL] = req.params.body;//update
 });
 
