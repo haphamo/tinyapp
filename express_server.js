@@ -6,12 +6,14 @@ const bcrypt = require('bcrypt');
 app.set("view engine", "ejs");
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
-const cookieSession = require("cookieSession");
+
+
+let cookieSession = require('cookie-session')
+
 app.use(cookieSession({
   name: 'session',
   keys: ["mituot"],
 
-  // Cookie Options
 }))
 
 function generateRandomString() {
@@ -35,7 +37,7 @@ checkEmail = function (email) {
 checkPassword = function (password) {
   for (let userId in userDatabase) {
     if (userDatabase[userId].password === password) {
-      return true;
+      return userDatabase[userId].password;
     }
   }
   return false;
@@ -52,10 +54,10 @@ getId = function (email) {
 let urlsForUser = function(database, userID) {//function to filter urls for user specific
   let userSpecific = {};
   for (let shortURL in database) {
-    console.log('eache url',shortURL);
+    //console.log('eache url',shortURL);
     let value = database[shortURL];
-    console.log('valueeeee', value)
-    console.log('value.userid is', value.userID)
+    // console.log('valueeeee', value)
+    // console.log('value.userid is', value.userID)
     if (value.userID === userID) {
       userSpecific[shortURL] = value;
     };
@@ -77,7 +79,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {//go back to fix this !!!!
-  user = userDatabase[req.session["user_ID"]]
+  user = userDatabase[req.session.user_id]
   if (!user) {//only logged in users can create links otherwise redirect
     res.redirect("/login");
     return;
@@ -91,13 +93,14 @@ app.get("/urls", (req, res) => {//go back to fix this !!!!
   };
 
   let templateVars = {urls: userSpecific,  user };
-  console.log("req.session", req.session)
   console.log("The urlDatabase:" , urlDatabase);
+  console.log("user", user);
+  console.log(req.session);
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {//get route ro create new links
-  if (!req.session["user_ID"]) {//only logged in users can create links otherwise redirect
+  if (!req.session.user_id) {//only logged in users can create links otherwise redirect
     res.redirect("/login");
   } else {
     user = userDatabase[req.session.user_id];
@@ -178,28 +181,34 @@ app.post("/register", (req, res) => {//post method for register, Store the email
     res.status(400).send("That email already exists!")
   } else {
   let userRandomId = generateRandomString();
+  
     userDatabase[userRandomId] = {
     "id": userRandomId,
     "email": req.body.email,
     "password": bcrypt.hashSync(req.body.password, 10)
     };
-  res.session.user_id = userRandomId
+  req.session.user_id = userRandomId
   res.redirect("/urls");
   }
 });
 
 app.get("/login", (req, res) => {//get route to log in
   user = userDatabase[req.session.user_id]
+  console.log("userDatabase: ", userDatabase);
+  console.log("urlDatabase", urlDatabase)
+  console.log("user is this one", user)
+  console.log("cookies", req.session.user_id)
   let templateVars = { user };
   res.render("urls_login", templateVars);
 });
 
 app.post("/login", (req, res) => {//post route to log in
   let existingUser = checkEmail(req.body.email);
-  console.log("user:", user);
+  console.log("req.body.password:", req.body.password);
+  
   if (!existingUser) {
     res.status(403).send("email doesn't exist!");
-  } else if (!bcrypt.compareSync(req.body.password, checkEmail(req.body.email))) {
+  } else if (!bcrypt.compareSync(req.body.password, userDatabase[existingUser].password )) {
     res.status(403).send("Password does not match!")
   } else {
     req.session.user_id =  getId(req.body.email)
