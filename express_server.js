@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
+const bcrypt = require('bcrypt');
 
 app.set("view engine", "ejs");
 const bodyParser = require("body-parser");
@@ -72,7 +73,7 @@ app.get("/", (req, res) => {
   res.send("<h1>Hello! Welcome to the HomePage</h1>");
 });
 
-app.get("/urls", (req, res) => {
+app.get("/urls", (req, res) => {//go back to fix this !!!!
   //console.log("cookies", req.cookies);
   user = userDatabase[req.cookies["user_ID"]]
   if (!user) {//only logged in users can create links otherwise redirect
@@ -112,13 +113,6 @@ app.post("/urls", (req, res) => {
 });
 
 app.get("/u/:shortURL", (req, res) => {
-  // console.log("urlDatabase:", urlDatabase)
-  // console.log("req.cookies", req.cookies)
-  // console.log("GIVE ME SHORT URL", req.params.shortURL)
-  // user = userDatabase[req.cookies["user_ID"]]
-  //console.log('USERRRRRRR', user.id);
-  //let abc = urlsForUser(urlDatabase, user.id);
-  //console.log("abc", abc[req.params.shortURL].longURL)  
   let shortURL = req.params.shortURL
   let longURL = urlDatabase[shortURL].longURL
   res.redirect(longURL);
@@ -193,9 +187,10 @@ app.post("/register", (req, res) => {//post method for register, Store the email
     userDatabase[userRandomId] = {//user_id cookie containing the user's newly generated ID
     "id": userRandomId,
     "email": req.body.email,
-    "password": req.body.password
+    "password": bcrypt.hashSync(req.body.password, 10)
     };
   res.cookie("user_ID", userRandomId)
+  console.log("req.body.passwordd:" , req.body.password)
   console.log("this is the userDatabase", userDatabase);
   res.redirect("/urls");
   }
