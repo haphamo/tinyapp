@@ -6,8 +6,14 @@ const bcrypt = require('bcrypt');
 app.set("view engine", "ejs");
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
-const cookieParser = require("cookie-parser");
-app.use(cookieParser());
+const cookieSession = require("cookieSession");
+app.use(cookieSession({
+  name: 'session',
+  keys: [/* secret keys */],
+
+  // Cookie Options
+  maxAge: 24 * 60 * 60 * 1000 // 24 hours
+}))
 
 function generateRandomString() {
   let shortURL = "";
