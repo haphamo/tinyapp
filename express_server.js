@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const PORT = 8080; // default port 8080
+const PORT = 8080;
 const bcrypt = require('bcrypt');
 const bodyParser = require("body-parser");
 let cookieSession = require('cookie-session')
@@ -38,9 +38,6 @@ app.get("/urls", (req, res) => {
   };
   let userSpecific = urlsForUser(urlDatabase, user.id)
   let templateVars = {urls: userSpecific,  user };
-  // console.log("userSpecific:", userSpecific)
-  // console.log("user:", user)
-  // console.log("req.session:", req.session)
   res.render("urls_index", templateVars);
 });
 
@@ -69,11 +66,8 @@ app.get("/u/:shortURL", (req, res) => {//anyone can access the shorter links
 app.get("/urls/:shortURL", (req, res) => {//only users can see their own shorturls
   user = userDatabase[req.session.user_id];
   let userSpecific = urlsForUser(urlDatabase, user.id)
-  // console.log(userSpecific);
-  // console.log("req.params:", req.params);
-  // console.log("req.body:", req.body)
   if (!userSpecific[req.params.shortURL]) {
-    res.status(403).send("ERROR");
+    res.status(401).send("ERROR");
     return;
   } 
   let templateVars = { shortURL: req.params.shortURL, longURL: userSpecific[req.params.shortURL].longURL }
@@ -85,17 +79,14 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {//post route which deletes saved URLs
-  //console.log('Before Deletion: ', urlDatabase);
   user = userDatabase[req.session.user_id];
   if (!user) {
     res.status(401).send("Get out!")
     return;
   } else {
     delete urlDatabase[req.params.shortURL];
-  
     res.redirect("/urls");
   };
-  //console.log('After Deletion: ', urlDatabase);
 });
 
 app.get("/url/:shortURL", (req, res) => {//post route to edit my url. go into database and change the longURL
