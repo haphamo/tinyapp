@@ -23,7 +23,7 @@ checkEmail = function (email) {
   for (let userId in userDatabase) {
     //console.log(userId);
     if (userDatabase[userId].email === email) {
-      return true;
+      return userId;
     };
   };
   return false;
@@ -87,11 +87,13 @@ app.get("/urls", (req, res) => {//go back to fix this !!!!
       userSpecific[shortURL] = value;
     }
   } 
-  console.log("userSpecific", userSpecific);
+
+  //console.log("userSpecific", userSpecific);
   let templateVars = {urls: userSpecific,  user };
   console.log("req.cookies", req.cookies)
   console.log("The urlDatabase:" , urlDatabase);
   res.render("urls_index", templateVars);
+ 
 });
 
 app.get("/urls/new", (req, res) => {//Adding a GET route to show the form. The order of route matters!! Go from most speficic to least
@@ -125,14 +127,14 @@ app.get("/urls/:shortURL", (req, res) => {
     let value = urlDatabase[shortURL];
     if (value.userID === user.id) {
       userSpecific[shortURL] = value;
-    }
-  }  
+    };
+  };
  
   let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL }
 
-  console.log("req.params.shortURL:", req.params.shortURL);
-  console.log("urlDatabase[req.params.shortURL].longURL:", urlDatabase[req.params.shortURL].longURL)
-  console.log("userDatabase[req.cookies['user_ID']]:", userDatabase[req.cookies["user_ID"]]);
+  // console.log("req.params.shortURL:", req.params.shortURL);
+  // console.log("urlDatabase[req.params.shortURL].longURL:", urlDatabase[req.params.shortURL].longURL)
+  // console.log("userDatabase[req.cookies['user_ID']]:", userDatabase[req.cookies["user_ID"]]);
   res.render("urls_show", templateVars);
 });
 
@@ -150,8 +152,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {//post route which deletes sav
     if (req.cookies.userID === [req.params.shortURL].userID) {
     delete urlDatabase[req.params.shortURL]
     res.redirect("/urls"); //redirect to urls
-
-  }
+  };
   //console.log('After Deletion: ', urlDatabase);
 });
 
@@ -190,7 +191,6 @@ app.post("/register", (req, res) => {//post method for register, Store the email
     "password": bcrypt.hashSync(req.body.password, 10)
     };
   res.cookie("user_ID", userRandomId)
-  console.log("req.body.passwordd:" , req.body.password)
   console.log("this is the userDatabase", userDatabase);
   res.redirect("/urls");
   }
@@ -200,14 +200,19 @@ app.get("/login", (req, res) => {//get route to log in
   user = userDatabase[req.cookies["user_ID"]]
   let templateVars = { user };
   res.render("urls_login", templateVars);
+  console.log("req.body.password", req.body.password)
+  console.log("userDatabase", userDatabase)
+  //console.log("Here is what i need!", user.password)
 });
 
 app.post("/login", (req, res) => {//post route to log in
-  user = userDatabase[req.cookies["user_ID"]]
-  let templateVars = { user: userDatabase[req.cookies["user_ID"]] };
-  if (!checkEmail(req.body.email)) {
+  // user = userDatabase[req.cookies["user_ID"]]
+  // let templateVars = { user: userDatabase[req.cookies["user_ID"]] };
+  let existingUser = checkEmail(req.body.email);
+  console.log("user:", user);
+  if (!existingUser) {
     res.status(403).send("email doesn't exist!")
-  } else if (checkPassword(req.body.password) === false) {
+  } else if (!bcrypt.compareSync(req.body.password, checkEmail(req.body.email))) {
     res.status(403).send("Password does not match!")
   } else {
     res.cookie("user_ID", getId(req.body.email))
