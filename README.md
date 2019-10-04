@@ -8,6 +8,9 @@ This app will shorten links for you to share your posts on social platforms such
 
 !["Login Page"](https://raw.githubusercontent.com/haphamo/tinyapp/master/docs/Login-page.png)
 !["Create Account Page"](https://raw.githubusercontent.com/haphamo/tinyapp/master/docs/create-account-page.png)
+!["Create Shortened URLs"](https://raw.githubusercontent.com/haphamo/tinyapp/master/docs/create-shortedned-urls.png)
+!["Edit Long URL](https://raw.githubusercontent.com/haphamo/tinyapp/master/docs/edit-long-url.png)
+!["View-Edit-Delete-URLs](https://raw.githubusercontent.com/haphamo/tinyapp/master/docs/view-edit-delete-urls.png)
 
 
 ## Dependencies
