@@ -87,10 +87,8 @@ app.post("/urls/:shortURL/delete", (req, res) => {//post route which deletes sav
     res.status(401).send("Get out!")
     return;
   } else {
-    let specificUrls = urlsForUser(urlDatabase, user.id);
-    if (req.session.user_id === [req.params.shortURL].userID) {
     delete urlDatabase[req.params.shortURL];
-    }
+  
     res.redirect("/urls");
   };
   //console.log('After Deletion: ', urlDatabase);
