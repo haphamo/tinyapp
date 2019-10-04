@@ -38,9 +38,9 @@ app.get("/urls", (req, res) => {
   };
   let userSpecific = urlsForUser(urlDatabase, user.id)
   let templateVars = {urls: userSpecific,  user };
-  console.log("userSpecific:", userSpecific)
-  console.log("user:", user)
-  console.log("req.session:", req.session)
+  // console.log("userSpecific:", userSpecific)
+  // console.log("user:", user)
+  // console.log("req.session:", req.session)
   res.render("urls_index", templateVars);
 });
 
@@ -68,14 +68,15 @@ app.get("/u/:shortURL", (req, res) => {//anyone can access the shorter links
 
 app.get("/urls/:shortURL", (req, res) => {//only users can see their own shorturls
   user = userDatabase[req.session.user_id];
-  let userSpecific = {};
-  for (let shortURL in urlDatabase) {
-    let value = urlDatabase[shortURL];
-    if (value.userID === user.id) {
-      userSpecific[shortURL] = value;
-    };
-  };
-  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL }
+  let userSpecific = urlsForUser(urlDatabase, user.id)
+  // console.log(userSpecific);
+  // console.log("req.params:", req.params);
+  // console.log("req.body:", req.body)
+  if (!userSpecific[req.params.shortURL]) {
+    res.status(403).send("ERROR");
+    return;
+  } 
+  let templateVars = { shortURL: req.params.shortURL, longURL: userSpecific[req.params.shortURL].longURL }
   res.render("urls_show", templateVars);
 });
 
