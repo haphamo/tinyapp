@@ -5,9 +5,9 @@ const bcrypt = require('bcrypt');
 const bodyParser = require("body-parser");
 let cookieSession = require('cookie-session')
 const {  generateRandomString,
-  checkEmail,
-  getId,
-  urlsForUser} = require("./helper")
+          checkEmail,
+          getId,
+          urlsForUser} = require("./helper")
 
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended: true}));
@@ -38,6 +38,9 @@ app.get("/urls", (req, res) => {
   };
   let userSpecific = urlsForUser(urlDatabase, user.id)
   let templateVars = {urls: userSpecific,  user };
+  console.log("userSpecific:", userSpecific)
+  console.log("user:", user)
+  console.log("req.session:", req.session)
   res.render("urls_index", templateVars);
 });
 
@@ -57,13 +60,13 @@ app.post("/urls", (req, res) => {
   res.redirect('/urls/'+ redirected);
 });
 
-app.get("/u/:shortURL", (req, res) => {
+app.get("/u/:shortURL", (req, res) => {//anyone can access the shorter links
   let shortURL = req.params.shortURL;
   let longURL = urlDatabase[shortURL].longURL;
   res.redirect(longURL);
 });
 
-app.get("/urls/:shortURL", (req, res) => {
+app.get("/urls/:shortURL", (req, res) => {//only users can see their own shorturls
   user = userDatabase[req.session.user_id];
   let userSpecific = {};
   for (let shortURL in urlDatabase) {
