@@ -4,6 +4,10 @@ const PORT = 8080; // default port 8080
 const bcrypt = require('bcrypt');
 const bodyParser = require("body-parser");
 let cookieSession = require('cookie-session')
+const {  generateRandomString,
+  checkEmail,
+  getId,
+  urlsForUser} = require("./helper")
 
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended: true}));
@@ -12,52 +16,6 @@ app.use(cookieSession({
   name: 'session',
   keys: ["mituot"]
 }))
-
-function generateRandomString() {
-  let shortURL = "";
-  let possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    for (let i = 0; i < 6; i++) {
-      shortURL += possible.charAt(Math.floor(Math.random() * possible.length));
-    };
-    return shortURL;
-};
-
-checkEmail = function (email) {
-  for (let userId in userDatabase) {
-    if (userDatabase[userId].email === email) {
-      return userId;
-    };
-  };
-  return false;
-};
-
-checkPassword = function (password) {
-  for (let userId in userDatabase) {
-    if (userDatabase[userId].password === password) {
-      return userDatabase[userId].password;
-    }
-  }
-  return false;
-};
-
-getId = function (email) {
-  for (let userId in userDatabase) {
-    if (userDatabase[userId].email === email) {
-      return userDatabase[userId].id
-    };
-  };
-};
-
-let urlsForUser = function(database, userID) {//function to filter urls for user specific
-  let userSpecific = {};
-  for (let shortURL in database) {
-    let value = database[shortURL];
-    if (value.userID === userID) {
-      userSpecific[shortURL] = value;
-    };
-  };
-  return userSpecific;
-}
 
 const urlDatabase = {
   b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" , shortURL: "b6UTxQ"},
@@ -128,9 +86,11 @@ app.post("/urls/:shortURL/delete", (req, res) => {//post route which deletes sav
   if (!user) {
     res.status(401).send("Get out!")
     return;
-  } let specificUrls = urlsForUser(urlDatabase, user.id);
+  } else {
+    let specificUrls = urlsForUser(urlDatabase, user.id);
     if (req.session.user_id === [req.params.shortURL].userID) {
     delete urlDatabase[req.params.shortURL];
+    }
     res.redirect("/urls");
   };
   //console.log('After Deletion: ', urlDatabase);
@@ -159,7 +119,7 @@ app.get("/register", (req, res) => {//get route to register
 app.post("/register", (req, res) => {//post method for register, Store the email and password into database
   if (req.body.email === "" || req.body.password === "") {
     res.status(400).send("Please input an email and password!");
-  } else  if (checkEmail(req.body.email)) {
+  } else  if (checkEmail(req.body.email, userDatabase)) {
     res.status(400).send("That email already exists!")
   } else {
   let userRandomId = generateRandomString();
@@ -181,13 +141,13 @@ app.get("/login", (req, res) => {//get route to log in
 });
 
 app.post("/login", (req, res) => {//post route to log in
-  let existingUser = checkEmail(req.body.email);
+  let existingUser = checkEmail((req.body.email), userDatabase);
   if (!existingUser) {
     res.status(403).send("email doesn't exist!");
   } else if (!bcrypt.compareSync(req.body.password, userDatabase[existingUser].password )) {
     res.status(403).send("Password does not match!")
   } else {
-    req.session.user_id =  getId(req.body.email)
+    req.session.user_id =  getId((req.body.email), userDatabase)
     res.redirect("/urls");
   };
 });
