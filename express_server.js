@@ -112,10 +112,14 @@ app.post("/urls", (req, res) => {
 });
 
 app.get("/u/:shortURL", (req, res) => {
-
-  const shortURL = urlDatabase[shortURL].shortURL;
-  const longURL = urlDatabase[shortURL].longURL;
-  res.redirect(longURL);
+  console.log("urlDatabase:", urlDatabase)
+  console.log("req.cookies", req.cookies)
+  console.log("GIVE ME SHORT URL", req.params.shortURL)
+  user = userDatabase[req.cookies["user_ID"]]
+  console.log('USERRRRRRR', user.id);
+  let abc = urlsForUser(urlDatabase, user.id);
+  console.log("abc", abc[req.params.shortURL].longURL)  
+  res.redirect(abc[req.params.shortURL].longURL);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
@@ -126,9 +130,7 @@ app.get("/urls/:shortURL", (req, res) => {
     if (value.userID === user.id) {
       userSpecific[shortURL] = value;
     }
-  } 
-  //let specificURLs = urlsForUser(urlDatabase, user)
-  
+  }  
  
   let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL }
 
@@ -144,9 +146,17 @@ app.get("/urls.json", (req, res) => {
 
 app.post("/urls/:shortURL/delete", (req, res) => {//post route which deletes saved URLs
   //console.log('Before Deletion: ', urlDatabase);
-  delete urlDatabase[req.params.shortURL]
+  user = userDatabase[req.cookies["user_ID"]];
+  if (!user) {
+    res.status(401).send("Get out!")
+    return
+  } let specificUrls = urlsForUser(urlDatabase, user.id)
+    if (req.cookies.userID === [req.params.shortURL].userID) {
+    delete urlDatabase[req.params.shortURL]
+    res.redirect("/urls"); //redirect to urls
+
+  }
   //console.log('After Deletion: ', urlDatabase);
-  res.redirect("/urls"); //redirect to urls
 });
 
 app.get("/url/:shortURL", (req, res) => {//post route to edit my url. go into database and change the longURL
