@@ -1,18 +1,18 @@
-function generateRandomString() {
+let generateRandomString = function() {
   let shortURL = "";
   let possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    for (let i = 0; i < 6; i++) {
-      shortURL += possible.charAt(Math.floor(Math.random() * possible.length));
-    };
-    return shortURL;
+  for (let i = 0; i < 6; i++) {
+    shortURL += possible.charAt(Math.floor(Math.random() * possible.length));
+  }
+  return shortURL;
 };
 
-let checkEmail = function (email, userDatabase) {
+let checkEmail = function(email, userDatabase) {
   for (let userId in userDatabase) {
     if (userDatabase[userId].email === email) {
       return userId;
-    };
-  };
+    }
+  }
   return undefined;
 };
 
@@ -22,13 +22,13 @@ let urlsForUser = function(database, userID) {//function to filter urls for user
     let value = database[shortURL];
     if (value.userID === userID) {
       userSpecific[shortURL] = value;
-    };
-  };
+    }
+  }
   return userSpecific;
-}
+};
 
 module.exports = {
   generateRandomString,
   checkEmail,
   urlsForUser
-}
+};
