@@ -53,7 +53,7 @@ app.get("/urls/new", (req, res) => {//get route ro create new links
 app.post("/urls", (req, res) => {
   let redirected = generateRandomString();
   urlDatabase[redirected] = { "longURL" : req.body.longURL , userID: req.session.user_id, "shortURL": redirected};
-  res.redirect('/urls/' + redirected);
+  res.redirect('/urls/')
 });
 
 app.get("/u/:shortURL", (req, res) => {//anyone can access the shorter links
@@ -69,7 +69,7 @@ app.get("/urls/:shortURL", (req, res) => {//only users can see their own shortur
     res.status(401).send("ERROR");
     return;
   }
-  let templateVars = { shortURL: req.params.shortURL, longURL: userSpecific[req.params.shortURL].longURL };
+  let templateVars = { shortURL: req.params.shortURL, longURL: userSpecific[req.params.shortURL].longURL , user };
   res.render("urls_show", templateVars);
 });
 
