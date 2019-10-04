@@ -1,6 +1,8 @@
 const { assert } = require('chai');
 
-const { checkEmail } = require('../helper.js');
+const { checkEmail,
+        urlsForUser
+      } = require('../helper.js');
 
 const testUserDatabase = {
   "userRandomID": {
@@ -15,6 +17,12 @@ const testUserDatabase = {
   }
 };
 
+const testUrlDatabase = {
+    b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" , shortURL: "b6UTxQ"},
+    i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW", shortURL: "i3BoGr" }
+};
+
+
 describe('checkEmail', function() {
   it('should return the userID if email exists', function() {
     const user = checkEmail("user@example.com", testUserDatabase)
@@ -26,6 +34,10 @@ describe('checkEmail', function() {
     const expectedOutput = undefined;
     assert.equal(user, expectedOutput, "Email does not exist!")
   });
-
-
 });
+
+describe('urlsForUser', function() {
+  it('should return the URLs that belong to that specific user', function() {
+
+  })
+})

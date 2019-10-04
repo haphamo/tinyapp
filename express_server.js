@@ -6,7 +6,6 @@ const bodyParser = require("body-parser");
 let cookieSession = require('cookie-session')
 const {  generateRandomString,
           checkEmail,
-          getId,
           urlsForUser} = require("./helper")
 
 app.set("view engine", "ejs");
@@ -140,7 +139,7 @@ app.post("/login", (req, res) => {//post route to log in
   } else if (!bcrypt.compareSync(req.body.password, userDatabase[existingUser].password )) {
     res.status(403).send("Password does not match!")
   } else {
-    req.session.user_id =  getId((req.body.email), userDatabase)
+    req.session.user_id =  checkEmail((req.body.email), userDatabase)
     res.redirect("/urls");
   };
 });

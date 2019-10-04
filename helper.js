@@ -16,14 +16,6 @@ let checkEmail = function (email, userDatabase) {
   return undefined;
 };
 
-let getId = function (email, userDatabase) {
-  for (let userId in userDatabase) {
-    if (userDatabase[userId].email === email) {
-      return userDatabase[userId].id
-    };
-  };
-};
-
 let urlsForUser = function(database, userID) {//function to filter urls for user specific
   let userSpecific = {};
   for (let shortURL in database) {
@@ -38,6 +30,6 @@ let urlsForUser = function(database, userID) {//function to filter urls for user
 module.exports = {
   generateRandomString,
   checkEmail,
-  getId,
+  //getId,
   urlsForUser
 }
