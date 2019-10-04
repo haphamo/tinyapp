@@ -9,10 +9,9 @@ app.use(bodyParser.urlencoded({extended: true}));
 const cookieSession = require("cookieSession");
 app.use(cookieSession({
   name: 'session',
-  keys: [/* secret keys */],
+  keys: ["mituot"],
 
   // Cookie Options
-  maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }))
 
 function generateRandomString() {
@@ -78,8 +77,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {//go back to fix this !!!!
-  //console.log("cookies", req.cookies);
-  user = userDatabase[req.cookies["user_ID"]]
+  user = userDatabase[req.session["user_ID"]]
   if (!user) {//only logged in users can create links otherwise redirect
     res.redirect("/login");
     return;
@@ -93,16 +91,16 @@ app.get("/urls", (req, res) => {//go back to fix this !!!!
   };
 
   let templateVars = {urls: userSpecific,  user };
-  console.log("req.cookies", req.cookies)
+  console.log("req.session", req.session)
   console.log("The urlDatabase:" , urlDatabase);
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {//get route ro create new links
-  if (!req.cookies["user_ID"]) {//only logged in users can create links otherwise redirect
+  if (!req.session["user_ID"]) {//only logged in users can create links otherwise redirect
     res.redirect("/login");
   } else {
-    user = userDatabase[req.cookies["user_ID"]];
+    user = userDatabase[req.session.user_id];
     let templateVars = { user_ID: req.body.id , user };
     res.render("urls_new", templateVars);
   };
@@ -110,8 +108,8 @@ app.get("/urls/new", (req, res) => {//get route ro create new links
 
 app.post("/urls", (req, res) => {
   let redirected = generateRandomString()
-  urlDatabase[redirected] = { "longURL" : req.body.longURL , userID: req.cookies["user_ID"], "shortURL": redirected}
-  console.log('shortURL has been created for ' + req.body.longURL +'\n' + redirected + " for userID: " + req.cookies["user_ID"]);
+  urlDatabase[redirected] = { "longURL" : req.body.longURL , userID: req.session.user_id, "shortURL": redirected}
+  console.log('shortURL has been created for ' + req.body.longURL +'\n' + redirected + " for userID: " + req.session.user_id);
   console.log("urlDatabase:", urlDatabase);
   res.redirect('/urls/'+ redirected);
 });
@@ -123,7 +121,7 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  user = userDatabase[req.cookies["user_ID"]];
+  user = userDatabase[req.session.user_id];
   let userSpecific = {};
   for (let shortURL in urlDatabase) {
     let value = urlDatabase[shortURL];
@@ -141,12 +139,12 @@ app.get("/urls.json", (req, res) => {
 
 app.post("/urls/:shortURL/delete", (req, res) => {//post route which deletes saved URLs
   //console.log('Before Deletion: ', urlDatabase);
-  user = userDatabase[req.cookies["user_ID"]];
+  user = userDatabase[req.session.user_id];
   if (!user) {
     res.status(401).send("Get out!")
     return;
   } let specificUrls = urlsForUser(urlDatabase, user.id);
-    if (req.cookies.userID === [req.params.shortURL].userID) {
+    if (req.session.user_id === [req.params.shortURL].userID) {
     delete urlDatabase[req.params.shortURL];
     res.redirect("/urls");
   };
@@ -154,7 +152,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {//post route which deletes sav
 });
 
 app.get("/url/:shortURL", (req, res) => {//post route to edit my url. go into database and change the longURL
-  user = userDatabase[req.cookies["user_ID"]];
+  user = userDatabase[req.session.user_id];
   if (!user) {
     res.status(401).send("Get out!");
     return;
@@ -168,8 +166,8 @@ app.post("/urls/:shortURL", (req, res) => {//updating the longURL, assign it to 
 });
 
 app.get("/register", (req, res) => {//get route to register
-  user = userDatabase[req.cookies["user_ID"]]
-  let templateVars = { user: userDatabase[req.cookies["user_ID"]] };
+  user = userDatabase[req.session.user_id]
+  let templateVars = { user: userDatabase[req.session.user_id] };
   res.render("urls_register", templateVars);
 });
 
@@ -180,18 +178,18 @@ app.post("/register", (req, res) => {//post method for register, Store the email
     res.status(400).send("That email already exists!")
   } else {
   let userRandomId = generateRandomString();
-    userDatabase[userRandomId] = {//user_id cookie containing the user's newly generated ID
+    userDatabase[userRandomId] = {
     "id": userRandomId,
     "email": req.body.email,
     "password": bcrypt.hashSync(req.body.password, 10)
     };
-  res.cookie("user_ID", userRandomId)
+  res.session.user_id = userRandomId
   res.redirect("/urls");
   }
 });
 
 app.get("/login", (req, res) => {//get route to log in
-  user = userDatabase[req.cookies["user_ID"]]
+  user = userDatabase[req.session.user_id]
   let templateVars = { user };
   res.render("urls_login", templateVars);
 });
@@ -204,14 +202,13 @@ app.post("/login", (req, res) => {//post route to log in
   } else if (!bcrypt.compareSync(req.body.password, checkEmail(req.body.email))) {
     res.status(403).send("Password does not match!")
   } else {
-    res.cookie("user_ID", getId(req.body.email));
+    req.session.user_id =  getId(req.body.email)
     res.redirect("/urls");
   };
 });
 
-app.post("/logout", (req, res) => {//clearing cookie after logout, redirect to all pages as a new user
-  res.clearCookie("user_ID");
-  //console.log("cookies", req.cookies)
+app.post("/logout", (req, res) => {
+  req.session = null 
   res.redirect("/urls");
 })
 
