@@ -54,10 +54,7 @@ getId = function (email) {
 let urlsForUser = function(database, userID) {//function to filter urls for user specific
   let userSpecific = {};
   for (let shortURL in database) {
-    //console.log('eache url',shortURL);
     let value = database[shortURL];
-    // console.log('valueeeee', value)
-    // console.log('value.userid is', value.userID)
     if (value.userID === userID) {
       userSpecific[shortURL] = value;
     };
@@ -84,18 +81,8 @@ app.get("/urls", (req, res) => {//go back to fix this !!!!
     res.redirect("/login");
     return;
   };
-  let userSpecific = {};
-  for (let shortURL in urlDatabase) {
-    let value = urlDatabase[shortURL];
-    if (value.userID === user.id) {
-      userSpecific[shortURL] = value;
-    };
-  };
-
+  let userSpecific = urlsForUser(urlDatabase, user.id)
   let templateVars = {urls: userSpecific,  user };
-  console.log("The urlDatabase:" , urlDatabase);
-  console.log("user", user);
-  console.log(req.session);
   res.render("urls_index", templateVars);
 });
 
