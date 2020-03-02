@@ -147,10 +147,7 @@ app.post("/logout", (req, res) => {
   res.redirect("/urls");
 });
 
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
 
 app.listen(PORT, () => {
-  console.log("You are connected to the server!");
+  console.log(`You are connected to the server, listening on port ${PORT}!`);
 });
