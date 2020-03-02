@@ -26,7 +26,7 @@ const userDatabase = {
 };
 
 app.get("/", (req, res) => {
-  res.send("<h1>Hello! Welcome to the HomePage</h1>");
+  res.redirect("/urls");
 });
 
 app.get("/urls", (req, res) => {
